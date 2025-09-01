@@ -31,6 +31,9 @@ It can be used as a standalone page, embedded as a block, and exposes a REST API
    drush en fuel_calculator
    ```
 3. (Optional) Place the "Fuel Calculator Block" in any region via the Block Layout UI.
+4. The module requires the following dependencies:
+   - Core: `rest`, `serialization`: drush en rest serialization
+   - Contrib: `restui` (for REST admin UI): composer require drupal/restui & drush en restui
 
 ---
 
