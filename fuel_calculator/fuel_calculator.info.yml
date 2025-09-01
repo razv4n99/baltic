@@ -1,0 +1,7 @@
+name: Fuel Calculator
+type: module
+description: Provides a configurable fuel calculator as a page, block, and REST API.
+core_version_requirement: ^10 || ^11
+package: Custom
+dependencies:
+  - drupal:system
