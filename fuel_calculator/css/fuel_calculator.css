@@ -66,3 +66,29 @@
   flex-direction: row;
   width: 100%;
 }
+
+@media (max-width: 767px) {
+  .fuel-calculator-form {
+    font-size: 12px;
+  }
+
+  .fuel-calculator-form .js-form-item {
+    padding: 5px;
+    margin: 0 0 15px;
+  }
+
+  .fuel-calculator-form .js-form-item label,
+  .fuel-calculator-form .first-col {
+    width: 45%;
+  }
+
+  .fuel-calculator-form .description,
+  .fuel-calculator-form .last-col {
+    width: calc(55% - 130px);
+  }
+
+  .fuel-calculator-form .form-actions {
+    margin: 25px 0 0;
+  }
+
+}
