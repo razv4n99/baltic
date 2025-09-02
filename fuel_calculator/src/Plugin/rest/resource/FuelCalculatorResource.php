@@ -8,16 +8,17 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\fuel_calculator\Service\FuelCalculatorService;
 use Drupal\Core\Session\AccountProxyInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides a REST resource for fuel calculation.
  *
  * @RestResource(
- *   id = "fuel_calculator_resource",
- *   label = @Translation("Fuel Calculator Resource"),
- *   uri_paths = {
- *     "create" = "/api/fuel-calculator"
- *   }
+ * id = "fuel_calculator_resource",
+ * label = @Translation("Fuel Calculator Resource"),
+ * uri_paths = {
+ * "create" = "/api/fuel-calculator"
+ * }
  * )
  */
 class FuelCalculatorResource extends ResourceBase {
@@ -31,7 +32,7 @@ class FuelCalculatorResource extends ResourceBase {
     $plugin_id,
     $plugin_definition,
     array $serializer_formats,
-    $logger,
+    LoggerInterface $logger,
     FuelCalculatorService $calculator,
     AccountProxyInterface $current_user,
     RequestStack $request_stack
@@ -55,21 +56,27 @@ class FuelCalculatorResource extends ResourceBase {
     );
   }
 
-  public function post($data) {
-    $distance = $data['distance'] ?? null;
-    $consumption = $data['consumption'] ?? null;
-    $price = $data['price'] ?? null;
+  public function post(array $data) {
+    $distance = $data['distance'] ?? NULL;
+    $consumption = $data['consumption'] ?? NULL;
+    $price = $data['price'] ?? NULL;
 
-    if (!$distance || !$consumption || !$price) {
-      return new JsonResponse(['error' => 'Missing parameters.'], 400);
+    // Validate that all parameters exist and are numeric and positive.
+    if (
+      !is_numeric($distance) || $distance <= 0 ||
+      !is_numeric($consumption) || $consumption <= 0 ||
+      !is_numeric($price) || $price <= 0
+    ) {
+      return new JsonResponse(['error' => 'Invalid parameters. All values (distance, consumption, price) must be positive numbers.'], 400);
     }
 
     $result = $this->calculator->calculate($distance, $consumption, $price);
 
-    // Log calculation.
     $ip = $this->requestStack->getCurrentRequest()->getClientIp();
     $user = $this->currentUser->isAuthenticated() ? $this->currentUser->getAccountName() : 'Anonymous';
-    \Drupal::logger('fuel_calculator')->notice('API Fuel calculation by @user (@ip): distance=@distance, consumption=@consumption, price=@price, spent=@spent, cost=@cost', [
+    
+    // Use the injected logger ($this->logger) from the constructor.
+    $this->logger->notice('API Fuel calculation by @user (@ip): distance=@distance, consumption=@consumption, price=@price, spent=@spent, cost=@cost', [
       '@user' => $user,
       '@ip' => $ip,
       '@distance' => $distance,

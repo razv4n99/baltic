@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the fuel calculator result.
+ *
+ * Available variables:
+ * - fuel_spent: The calculated amount of fuel spent (float).
+ * - fuel_cost: The calculated cost of the fuel (float).
+ */
+#}
+<div class="result-row">
+  <span class="first-col">{{ 'Fuel spent:'|t }}</span>
+  <span class="middle-col">{{ fuel_spent|number_format(2, '.', ',') }}</span>
+  <span class="last-col">{{ 'liters'|t }}</span>
+</div>
+<div class="result-row">
+  <span class="first-col">{{ 'Fuel cost:'|t }}</span>
+  <span class="middle-col">{{ fuel_cost|number_format(2, '.', ',') }}</span>
+  <span class="last-col">{{ 'EUR'|t }}</span>
+</div>

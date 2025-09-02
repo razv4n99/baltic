@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Primary module file for the Fuel Calculator module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function fuel_calculator_theme($existing, $type, $theme, $path) {
+  return [
+    'fuel_calculator_result' => [
+      'variables' => ['fuel_spent' => NULL, 'fuel_cost' => NULL],
+    ],
+  ];
+}

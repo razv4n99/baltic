@@ -9,6 +9,7 @@ use Drupal\fuel_calculator\Service\FuelCalculatorService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 class FuelCalculatorForm extends FormBase {
 
@@ -16,12 +17,14 @@ class FuelCalculatorForm extends FormBase {
   protected $requestStack;
   protected $loggerFactory;
   protected $currentUser;
+  protected $configFactory;
 
-  public function __construct(FuelCalculatorService $calculator, RequestStack $request_stack, LoggerChannelFactoryInterface $logger_factory, AccountProxyInterface $current_user) {
+  public function __construct(FuelCalculatorService $calculator, RequestStack $request_stack, LoggerChannelFactoryInterface $logger_factory, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory) {
     $this->calculator = $calculator;
     $this->requestStack = $request_stack;
     $this->loggerFactory = $logger_factory;
     $this->currentUser = $current_user;
+    $this->configFactory = $config_factory;
   }
 
   public static function create(ContainerInterface $container) {
@@ -29,7 +32,8 @@ class FuelCalculatorForm extends FormBase {
       $container->get('fuel_calculator.calculator'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('config.factory')
     );
   }
 
@@ -40,17 +44,15 @@ class FuelCalculatorForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#attributes']['class'][] = 'fuel-calculator-form';
     $form['#attached']['library'][] = 'fuel_calculator/fuel_calculator_styles';
-    $config = \Drupal::config('fuel_calculator.settings');
+    $config = $this->configFactory->get('fuel_calculator.settings');
     $request = $this->requestStack->getCurrentRequest();
 
-    // If reset was pressed, clear user input and result.
     if ($form_state->get('reset')) {
-      $form_state->setUserInput([]); // This is the key!
+      $form_state->setUserInput([]);
       $form_state->set('result', NULL);
       $form_state->set('reset', FALSE);
     }
 
-    // Use values from $form_state if available, else from query/config.
     $distance = $form_state->getValue('distance') ?? $request->query->get('distance', $config->get('default_distance'));
     $consumption = $form_state->getValue('consumption') ?? $request->query->get('consumption', $config->get('default_consumption'));
     $price = $form_state->getValue('price') ?? $request->query->get('price', $config->get('default_price'));
@@ -95,22 +97,17 @@ class FuelCalculatorForm extends FormBase {
       '#limit_validation_errors' => [],
       '#attributes' => [
         'class' => ['button', 'button--secondary'],
-        'style' => 'margin-right: 0;',
       ],
     ];
 
-    if ($form_state->get('result')) {
-      $form['result'] = [
-        '#type' => 'item',
-        '#markup' => $form_state->get('result'),
-      ];
+    if ($result_data = $form_state->get('result')) {
+        $form['result'] = $result_data;
     }
 
     return $form;
   }
 
   public function resetForm(array &$form, FormStateInterface $form_state) {
-    // Set a flag to trigger reset in buildForm.
     $form_state->set('reset', TRUE);
     $form_state->setRebuild();
   }
@@ -130,7 +127,6 @@ class FuelCalculatorForm extends FormBase {
 
     $result = $this->calculator->calculate($distance, $consumption, $price);
 
-    // Log calculation.
     $ip = $this->requestStack->getCurrentRequest()->getClientIp();
     $user = $this->currentUser->isAuthenticated() ? $this->currentUser->getAccountName() : 'Anonymous';
     $this->loggerFactory->get('fuel_calculator')->notice('Fuel calculation by @user (@ip): distance=@distance, consumption=@consumption, price=@price, spent=@spent, cost=@cost', [
@@ -143,18 +139,14 @@ class FuelCalculatorForm extends FormBase {
       '@cost' => $result['fuel_cost'],
     ]);
 
-    $form_state->set('result',
-      '<div class="result-row">' .
-        '<span class="first-col">Fuel spent:</span> ' .
-        '<span class="middle-col">' . number_format($result['fuel_spent'], 2) . '</span> ' .
-        '<span class="last-col">liters</span>' .
-      '</div>' .
-      '<div class="result-row">' .
-        '<span class="first-col">Fuel cost:</span> ' .
-        '<span class="middle-col">' . number_format($result['fuel_cost'], 2) . '</span> ' .
-        '<span class="last-col">EUR</span>' .
-      '</div>'
-    );
+    $form_state->set('result', [
+      '#theme' => 'fuel_calculator_result',
+      '#fuel_spent' => $result['fuel_spent'],
+      '#fuel_cost' => $result['fuel_cost'],
+      '#prefix' => '<div class="fuel-calculator-result">',
+      '#suffix' => '</div>',
+    ]);
+    
     $form_state->setRebuild();
   }
 }
