@@ -1,11 +1,6 @@
 <?php
 
 /**
- * @file
- * Primary module file for the Fuel Calculator module.
- */
-
-/**
  * Implements hook_theme().
  */
 function fuel_calculator_theme($existing, $type, $theme, $path) {

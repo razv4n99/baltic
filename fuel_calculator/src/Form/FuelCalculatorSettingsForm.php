@@ -20,14 +20,14 @@ class FuelCalculatorSettingsForm extends ConfigFormBase {
 
     $form['default_distance'] = [
       '#type' => 'number',
-      '#title' => $this->t('Default distance (km)'),
+      '#title' => $this->t('Default distance (km)', [], ['context' => 'Fuel Calculator']),
       '#default_value' => $config->get('default_distance'),
       '#min' => 1,
       '#required' => TRUE,
     ];
     $form['default_consumption'] = [
       '#type' => 'number',
-      '#title' => $this->t('Default fuel consumption (L/100km)'),
+      '#title' => $this->t('Default fuel consumption (L/100km)', [], ['context' => 'Fuel Calculator']),
       '#default_value' => $config->get('default_consumption'),
       '#min' => 0.1,
       '#step' => 0.1,
@@ -35,7 +35,7 @@ class FuelCalculatorSettingsForm extends ConfigFormBase {
     ];
     $form['default_price'] = [
       '#type' => 'number',
-      '#title' => $this->t('Default fuel price (per L)'),
+      '#title' => $this->t('Default fuel price (per L)', [], ['context' => 'Fuel Calculator']),
       '#default_value' => $config->get('default_price'),
       '#min' => 0.01,
       '#step' => 0.01,
