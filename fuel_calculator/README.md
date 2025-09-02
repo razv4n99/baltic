@@ -13,13 +13,14 @@ It can be used as a standalone page, embedded as a block, and exposes a REST API
 - **Config install:** Ships with default config for easy deployment.
 - **Flexible usage:** Use as a page (`/fuel-calculator`) or as a block.
 - **Backend calculations:** All calculations are performed server-side.
-- **Input validation:** Ensures all fields are required and positive numbers.
+- **Input validation:** Ensures all fields are required and positive numbers (including API).
 - **Service-based logic:** All calculations are handled by a Drupal service.
 - **Prefill via URL:** Calculator fields can be prefilled using URL query parameters.
 - **REST API:** Exposes a POST endpoint for programmatic access.
 - **Logging:** All calculations are logged with IP, user, input, and result.
 - **Custom styling:** Includes a CSS file for a clean, responsive layout.
 - **Reset button:** Resets the form to default values.
+- **Themeable results:** Results are rendered via a Twig template for easy theming.
 
 ---
 
@@ -32,8 +33,13 @@ It can be used as a standalone page, embedded as a block, and exposes a REST API
    ```
 3. (Optional) Place the "Fuel Calculator Block" in any region via the Block Layout UI.
 4. The module requires the following dependencies:
-   - Core: `rest`, `serialization`: drush en rest serialization
-   - Contrib: `restui` (for REST admin UI): composer require drupal/restui & drush en restui
+   - Core: `rest`, `serialization`
+   - Contrib: `restui` (for REST admin UI)
+   - Install with:
+     ```
+     composer require drupal/restui
+     drush en rest serialization restui
+     ```
 
 ---
 
@@ -90,6 +96,10 @@ You can prefill the calculator form using query parameters, e.g.:
 }
 ```
 
+### Validation
+
+- All parameters must be present, numeric, and positive. Otherwise, a 400 error is returned.
+
 ### Authentication
 
 - By default, the API requires authentication (cookie or basic_auth).
@@ -138,6 +148,13 @@ curl -X POST http://your-site/api/fuel-calculator \
 
 ---
 
+## Theming
+
+- Calculation results are rendered using a Twig template (`templates/fuel-calculator-result.html.twig`).
+- You can override this template in your theme for custom presentation.
+
+---
+
 ## Coding Standards
 
 - The module uses PSR-4, dependency injection, and follows Drupal 10/11 best practices.
@@ -162,6 +179,8 @@ fuel_calculator/
           FuelCalculatorResource.php
     Service/
       FuelCalculatorService.php
+  templates/
+    fuel-calculator-result.html.twig
   config/
     install/
       fuel_calculator.settings.yml
@@ -170,6 +189,7 @@ fuel_calculator/
   fuel_calculator.links.menu.yml
   fuel_calculator.routing.yml
   fuel_calculator.services.yml
+  fuel_calculator.module
   README.txt
 ```
 
