@@ -1,10 +1,10 @@
 {
-  "name": "drupal/fuel_calculator",
+  "name": "fuel_calculator",
   "type": "drupal-module",
   "description": "Provides a fuel calculator page, block, and REST API.",
+  "version": "1.0.0",
   "license": "GPL-2.0-or-later",
-  "require": {},
-  "require-dev": {
+  "require": {
     "drupal/restui": "^1.21"
   }
 }
