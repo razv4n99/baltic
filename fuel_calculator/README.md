@@ -184,13 +184,14 @@ fuel_calculator/
   config/
     install/
       fuel_calculator.settings.yml
+  composer.json
   fuel_calculator.info.yml
   fuel_calculator.libraries.yml
   fuel_calculator.links.menu.yml
+  fuel_calculator.module
   fuel_calculator.routing.yml
   fuel_calculator.services.yml
-  fuel_calculator.module
-  README.txt
+  README.md
 ```
 
 ---
